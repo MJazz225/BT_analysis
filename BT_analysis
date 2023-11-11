@@ -104,6 +104,7 @@ data1 <- cbind(data1[,1],last_parts,data1[,c(3:ncol(data1))])
 colnames(data1) <- c("統一帳號\nmaster a/c", "產品合約\nsymbol",  "成交價格\ndeal price","成交手數\ndeal lot" , "成交時間\ndeal time", "帳戶貨幣\na/c currency", "傭金\ncommission" , "利息\nswaps",
                      "盈虧\np/l", "SUM","\n開倉價格\nopen price\n" , "\n開倉手數\nopen volume\n", "開倉時間\nopen time\n")
 
+############################################### 計算產品盈利 ############################################################################
 
 list_data1 <- split(data1, f = data1$`產品合約
 symbol`)
@@ -124,7 +125,7 @@ sum_symbol <- sum_symbol[order(sum_symbol[,2], decreasing = T),]
 
 total_sum <- sum(sum_symbol[,2])
 total_sum <- c("Total", total_sum)
-sum_symbol <- sum_symbol[sum_symbol[,2]>100,]
+sum_symbol <- sum_symbol[sum_symbol[,2]>0,]
 sum_symbol <- rbind(sum_symbol, total_sum)
 
 
@@ -334,8 +335,15 @@ data_report <- data_report[order(data_report$ID, decreasing = T ),]
 data_report <- data_report[2:nrow(data_report),] #去掉Total
 data_report1 <- data_report[data_report[,5]>0,]
 data_report1 <- data_report1[order(data_report1$`3month ROI`, decreasing = T ),]
-file_path1 <- "D:\\Users\\marshaw.tan\\Downloads\\BT_值班客戶盈利.xlsx"
 
+data_high_return <- readxl::read_excel("必拓BT關注名單.xlsx")
+data_high_return <- data_high_return[,c(3,1)]
+
+colnames(data_high_return) <- c("ID","風險等級")
+merged_data <- merge(data_report1, data_high_return, by = "ID", all.x = T)
+data_report1 <- merged_data
+
+file_path1 <- "D:\\Users\\marshaw.tan\\Downloads\\BT_值班客戶盈利.xlsx"
 write.xlsx(data_report1, file_path1, digits = 2)
 "已經下載好BT總和報表"
 
